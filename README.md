@@ -1,1 +1,1 @@
-# TruongQuocDat_Ex2
+# JavaCoreAssignment
