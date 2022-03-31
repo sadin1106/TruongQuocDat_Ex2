@@ -21,7 +21,7 @@ public class Program {
         try {
             while (true) {
                 System.out.println("--------------------------------------------------");
-                System.out.println("-----------------Vehicle Rental System----------------");
+                System.out.println("---------------Vehicle Rental System--------------");
                 System.out.println("--------------------------------------------------");
                 System.out.println("1. Print all vehicles belong to the rental fleet");
                 System.out.println("2. Rent a vehicle");
@@ -82,6 +82,10 @@ public class Program {
                         }
                         break;
                     case 4:
+                        List<Vehicle> vehicles2 = vehicleStorage.getAllAvailableVehicles();
+                        for (Vehicle vehicle1 : vehicles2){
+                            System.out.println(vehicle1 + "\n");
+                        }
                         break;
                     case 5:
                         System.out.println("Enter the vehicle code: ");
@@ -115,10 +119,10 @@ public class Program {
                         }
                         break;
                     case 7:
-                        vehicleStorage.addVehiclesFromCSV();
+                        vehicleStorage.addVehiclesFromCSV("src\\main\\resources\\data.csv");
                         break;
                     case 8:
-
+                        vehicleStorage.exportAllVehiclesToCSV();
                         break;
                     case 0:
                         System.out.println("Bye!");

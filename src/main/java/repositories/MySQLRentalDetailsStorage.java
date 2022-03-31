@@ -14,7 +14,7 @@ public class MySQLRentalDetailsStorage{
     private Connection connection;
     private final String DB_URL = "jdbc:mysql://localhost:3306/vehicledb?createDatabaseIfNotExist=true";
     private final String USERNAME = "root";
-    private final String PASSWORD = "admin";
+    private final String PASSWORD = "1qazxsw2@_123";
 
     public MySQLRentalDetailsStorage() throws SQLException{
         connection = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);

@@ -1,11 +1,12 @@
 package repositories;
 
-import com.sun.security.auth.UnixNumericUserPrincipal;
-import model.Customer;
+import com.opencsv.CSVWriter;
 import model.Vehicle;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,7 @@ public class MySQLVehicleStorage{
     private Connection connection;
     private final String DB_URL = "jdbc:mysql://localhost:3306/vehicledb?createDatabaseIfNotExist=true";
     private final String USERNAME = "root";
-    private final String PASSWORD = "admin";
+    private final String PASSWORD = "1qazxsw2@_123";
 
     public MySQLVehicleStorage() throws SQLException{
         connection = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
@@ -27,8 +28,8 @@ public class MySQLVehicleStorage{
         }
     }
 
-    public List<Vehicle> getVehiclesInCSV(){
-        File csv = new File("src\\main\\resources\\data.csv");
+    public List<Vehicle> getVehiclesInCSV(String path){
+        File csv = new File(path);
         List<Vehicle> vehicles = new ArrayList<>();
         try {
             Scanner scan = new Scanner(csv);
@@ -72,7 +73,7 @@ public class MySQLVehicleStorage{
         }
     }
 
-    public List<Vehicle> getAllAvailableVehicles(Customer customer) throws SQLException {
+    public List<Vehicle> getAllAvailableVehicles() throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM Vehicles where status='available'");
         ResultSet result = preparedStatement.executeQuery();
         List<Vehicle> vehicles = new ArrayList<Vehicle>();
@@ -84,6 +85,7 @@ public class MySQLVehicleStorage{
             vehicle.setSeats(result.getInt("seats"));
             vehicle.setLicensePlate(result.getString("licensePlate"));
             vehicle.setStatus(result.getString("status"));
+            vehicle.setCustomerNumber(result.getInt("customerNumber"));
             vehicles.add(vehicle);
         }
         return vehicles;
@@ -106,8 +108,8 @@ public class MySQLVehicleStorage{
         }
     }
 
-    public void addVehiclesFromCSV() throws SQLException {
-        List<Vehicle> vehicles = getVehiclesInCSV();
+    public void addVehiclesFromCSV(String path) throws SQLException {
+        List<Vehicle> vehicles = getVehiclesInCSV(path);
         for (Vehicle vehicle : vehicles) {
             PreparedStatement ps = connection.prepareStatement("insert into Vehicles (code, brand, model, seats, licensePlate, status) values (?,?,?,?,?,?)");
             ps.setLong(1, vehicle.getCode());
@@ -117,6 +119,30 @@ public class MySQLVehicleStorage{
             ps.setString(5, vehicle.getLicensePlate());
             ps.setString(6, vehicle.getStatus());
             ps.executeUpdate();
+        }
+    }
+
+    public void exportAllVehiclesToCSV() throws SQLException{
+        List<Vehicle> vehicles = getAllVehicles();
+        if (vehicles.size() < 1){
+            System.out.println("There's nothing to print here!");
+        } else {
+            File file = new File("src\\main\\resources\\export.csv");
+            try {
+                FileWriter fileWriter = new FileWriter(file);
+                CSVWriter writer = new CSVWriter(fileWriter);
+                for (Vehicle vehicle : vehicles) {
+                    String[] data = {Long.toString(vehicle.getCode()), vehicle.getBrand(),
+                            vehicle.getModel(), Integer.toString(vehicle.getSeats()), vehicle.getLicensePlate(),
+                            vehicle.getStatus(), Integer.toString(vehicle.getCustomerNumber())};
+                    writer.writeNext(data);
+                }
+                writer.close();
+                System.out.println("Print successfully");
+                System.out.println("Note: please wait a little bit cause the file need to process");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
