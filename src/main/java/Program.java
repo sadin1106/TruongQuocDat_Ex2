@@ -71,11 +71,11 @@ public class Program {
                         String b = scan.next();
                         System.out.println("Enter the vehicle model: ");
                         String m = scan.next();
-                        Vehicle vehicle = new Vehicle();
-                        vehicle.setCustomerNumber(cn);
-                        vehicle.setBrand(b);
-                        vehicle.setModel(m);
-                        if (rentalDetailsStorage.returnACar(vehicle)){
+                        RentalDetail rentalDetail1 = new RentalDetail();
+                        rentalDetail1.setCustomerNumber(cn);
+                        rentalDetail1.setBrand(b);
+                        rentalDetail1.setModel(m);
+                        if (rentalDetailsStorage.returnACar(rentalDetail1)){
                             System.out.println("You have succeed in returning this " + b + " " + m);
                         } else {
                             System.out.println("Try again!");

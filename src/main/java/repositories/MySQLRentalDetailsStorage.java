@@ -2,7 +2,6 @@ package repositories;
 
 import model.Customer;
 import model.RentalDetail;
-import model.Vehicle;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -14,7 +13,7 @@ public class MySQLRentalDetailsStorage{
     private Connection connection;
     private final String DB_URL = "jdbc:mysql://localhost:3306/vehicledb?createDatabaseIfNotExist=true";
     private final String USERNAME = "root";
-    private final String PASSWORD = "1qazxsw2@_123";
+    private final String PASSWORD = "admin";
 
     public MySQLRentalDetailsStorage() throws SQLException{
         connection = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
@@ -70,23 +69,22 @@ public class MySQLRentalDetailsStorage{
             preparedStatement.setString(2, rentingACar.getBrand());
             preparedStatement.setString(3, rentingACar.getModel());
             preparedStatement.executeUpdate();
-
             return true;
         }
     }
 
-    public boolean returnACar(Vehicle vehicle) throws SQLException {
-        if (vehicle == null) {
+    public boolean returnACar(RentalDetail rentalDetail) throws SQLException {
+        if (rentalDetail == null) {
             return false;
         } else {
             PreparedStatement preparedStatement = connection.prepareStatement("DELETE from RentalDetails WHERE brand=? AND customerNumber=?");
-            preparedStatement.setString(1, vehicle.getBrand());
-            preparedStatement.setInt(2, vehicle.getCustomerNumber());
+            preparedStatement.setString(1, rentalDetail.getBrand());
+            preparedStatement.setInt(2, rentalDetail.getCustomerNumber());
             preparedStatement.executeUpdate();
 
-            preparedStatement = connection.prepareStatement("update Vehicles set status='available', customerNumber=0 where brand=? and model=?");
-            preparedStatement.setString(1, vehicle.getBrand());
-            preparedStatement.setString(2, vehicle.getModel());
+            preparedStatement = connection.prepareStatement("update Vehicles set status='available' where brand=? and model=?");
+            preparedStatement.setString(1, rentalDetail.getBrand());
+            preparedStatement.setString(2, rentalDetail.getModel());
             preparedStatement.executeUpdate();
             return true;
         }

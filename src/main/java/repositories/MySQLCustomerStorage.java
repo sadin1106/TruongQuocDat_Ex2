@@ -13,7 +13,7 @@ public class MySQLCustomerStorage{
     private Connection connection;
     private final String DB_URL = "jdbc:mysql://localhost:3306/vehicledb?createDatabaseIfNotExist=true";
     private final String USERNAME = "root";
-    private final String PASSWORD = "1qazxsw2@_123";
+    private final String PASSWORD = "admin";
 
     public MySQLCustomerStorage() throws SQLException{
         connection = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);

@@ -1,6 +1,7 @@
 package repositories;
 
 import com.opencsv.CSVWriter;
+import model.RentalDetail;
 import model.Vehicle;
 
 import java.io.File;
@@ -18,7 +19,7 @@ public class MySQLVehicleStorage{
     private Connection connection;
     private final String DB_URL = "jdbc:mysql://localhost:3306/vehicledb?createDatabaseIfNotExist=true";
     private final String USERNAME = "root";
-    private final String PASSWORD = "1qazxsw2@_123";
+    private final String PASSWORD = "admin";
 
     public MySQLVehicleStorage() throws SQLException{
         connection = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
@@ -36,7 +37,7 @@ public class MySQLVehicleStorage{
             while (scan.hasNextLine()){
                 String data = scan.nextLine();
                 String[] splitData = data.split(",");
-                vehicles.add(new Vehicle(Long.parseLong(splitData[0]), splitData[1], splitData[2], Integer.parseInt(splitData[3]), splitData[4], splitData[5], Integer.parseInt(splitData[6])));
+                vehicles.add(new Vehicle(Long.parseLong(splitData[0]), splitData[1], splitData[2], Integer.parseInt(splitData[3]), splitData[4], splitData[5]));
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -56,7 +57,6 @@ public class MySQLVehicleStorage{
             vehicle.setSeats(result.getInt("seats"));
             vehicle.setLicensePlate(result.getString("licensePlate"));
             vehicle.setStatus(result.getString("status"));
-            vehicle.setCustomerNumber(result.getInt("customerNumber"));
             vehicles.add(vehicle);
         }
         return vehicles;
@@ -74,7 +74,7 @@ public class MySQLVehicleStorage{
     }
 
     public List<Vehicle> getAllAvailableVehicles() throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM Vehicles where status='available'");
+        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * from Vehicles where status='available'");
         ResultSet result = preparedStatement.executeQuery();
         List<Vehicle> vehicles = new ArrayList<Vehicle>();
         while (result.next()) {
@@ -85,7 +85,6 @@ public class MySQLVehicleStorage{
             vehicle.setSeats(result.getInt("seats"));
             vehicle.setLicensePlate(result.getString("licensePlate"));
             vehicle.setStatus(result.getString("status"));
-            vehicle.setCustomerNumber(result.getInt("customerNumber"));
             vehicles.add(vehicle);
         }
         return vehicles;
@@ -134,12 +133,12 @@ public class MySQLVehicleStorage{
                 for (Vehicle vehicle : vehicles) {
                     String[] data = {Long.toString(vehicle.getCode()), vehicle.getBrand(),
                             vehicle.getModel(), Integer.toString(vehicle.getSeats()), vehicle.getLicensePlate(),
-                            vehicle.getStatus(), Integer.toString(vehicle.getCustomerNumber())};
+                            vehicle.getStatus()};
                     writer.writeNext(data);
                 }
                 writer.close();
+                fileWriter.close();
                 System.out.println("Print successfully");
-                System.out.println("Note: please wait a little bit cause the file need to process");
             } catch (IOException e) {
                 e.printStackTrace();
             }

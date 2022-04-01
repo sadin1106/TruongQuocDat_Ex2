@@ -7,7 +7,6 @@ public class Vehicle {
     private int seats;
     private String licensePlate;
     private String status;
-    private int customerNumber;
 
     public Vehicle() {
     }
@@ -19,16 +18,6 @@ public class Vehicle {
         this.seats = seats;
         this.licensePlate = licensePlate;
         this.status = status;
-    }
-
-    public Vehicle(long code, String brand, String model, int seats, String licensePlate, String status, int customerNumber) {
-        this.status = status;
-        this.code = code;
-        this.brand = brand;
-        this.model = model;
-        this.seats = seats;
-        this.licensePlate = licensePlate;
-        this.customerNumber = customerNumber;
     }
 
     public String getStatus() {
@@ -79,14 +68,6 @@ public class Vehicle {
         this.licensePlate = licensePlate;
     }
 
-    public int getCustomerNumber() {
-        return customerNumber;
-    }
-
-    public void setCustomerNumber(int customerNumber) {
-        this.customerNumber = customerNumber;
-    }
-
     @Override
     public String toString() {
         return "Vehicle {" +
@@ -96,7 +77,6 @@ public class Vehicle {
                 ", seats =" + seats +
                 ", licensePlate ='" + licensePlate + '\'' +
                 ", status ='" + status + '\'' +
-                ", customerNumber =" + customerNumber +
                 '}';
     }
 }
