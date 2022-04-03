@@ -1,3 +1,4 @@
+import model.Customer;
 import model.RentalDetail;
 import model.Vehicle;
 import repositories.MySQLCustomerStorage;
@@ -31,6 +32,7 @@ public class Program {
                 System.out.println("6. Cancellation of a vehicle from the rental fleet");
                 System.out.println("7. Importing vehicles from a CSV file");
                 System.out.println("8. Exporting all vehicle to a CSV file");
+                System.out.println("9. Register a new customer");
                 System.out.println("0. Exit");
                 System.out.println("--------------------------------------------------");
                 System.out.print("Your option: ");
@@ -38,14 +40,17 @@ public class Program {
                 switch (input){
                     case 1:
                         List<Vehicle> vehicles = vehicleStorage.getAllVehicles();
+                        if (vehicles.size() < 1){
+                            System.out.println("There are no record of vehicles in the database!");
+                        }
                         for (Vehicle vehicle : vehicles){
                             System.out.println(vehicle + "\n");
                         }
                         break;
                     case 2:
-                        System.out.println("Enter your start date (in format of YYYY-MM-DD): ");
+                        System.out.println("Enter your start date (in format of yyyy-MM-dd): ");
                         String startDate = scan.next();
-                        System.out.println("Enter your end date (in format of YYYY-MM-DD): ");
+                        System.out.println("Enter your end date (in format of yyyy-MM-dd): ");
                         String endDate = scan.next();
                         System.out.println("Enter your vehicle brand: ");
                         String brand = scan.next();
@@ -55,13 +60,17 @@ public class Program {
                         int customerNumber = scan.nextInt();
                         System.out.println("Enter your customer name: ");
                         String customerName = scan.next();
-                        RentalDetail rentalDetail =  new RentalDetail(startDate, endDate, brand, model, customerNumber, customerName);
-                        if (rentalDetailsStorage.rentCar(rentalDetail)){
-                            System.out.println(customerName + " have rented the " + brand + " " + model + " from " + startDate + " to " + endDate);
-                            System.out.println("Here is your receipt :");
-                            System.out.println(rentalDetail);
+                        if (customerStorage.checkIfCustomerExist(customerNumber)) {
+                            RentalDetail rentalDetail = new RentalDetail(startDate, endDate, brand, model, customerNumber, customerName);
+                            if (rentalDetailsStorage.rentCar(rentalDetail)) {
+                                System.out.println(customerName + " have rented the " + brand + " " + model + " from " + startDate + " to " + endDate);
+                                System.out.println("Here is your receipt :");
+                                System.out.println(rentalDetail);
+                            } else {
+                                System.out.println("Try again!");
+                            }
                         } else {
-                            System.out.println("Try again!");
+                            System.out.println("This customer has not existed");
                         }
                         break;
                     case 3:
@@ -71,20 +80,35 @@ public class Program {
                         String b = scan.next();
                         System.out.println("Enter the vehicle model: ");
                         String m = scan.next();
-                        RentalDetail rentalDetail1 = new RentalDetail();
-                        rentalDetail1.setCustomerNumber(cn);
-                        rentalDetail1.setBrand(b);
-                        rentalDetail1.setModel(m);
-                        if (rentalDetailsStorage.returnACar(rentalDetail1)){
-                            System.out.println("You have succeed in returning this " + b + " " + m);
+                        Customer customer = new Customer();
+                        customer.setCustomerNumber(cn);
+                        List<RentalDetail> rentalDetails = rentalDetailsStorage.getCustomerRentals(customer);
+                        if (rentalDetails.size() > 0) {
+                            RentalDetail rentalDetail1 = new RentalDetail();
+                            rentalDetail1.setCustomerNumber(cn);
+                            rentalDetail1.setBrand(b);
+                            rentalDetail1.setModel(m);
+                            if (rentalDetailsStorage.returnACar(rentalDetail1)) {
+                                System.out.println("You have succeed in returning this " + b + " " + m);
+                            } else {
+                                System.out.println("Try again!");
+                            }
                         } else {
-                            System.out.println("Try again!");
+                            System.out.println("You have not rented any vehicles yet!");
                         }
                         break;
                     case 4:
-                        List<Vehicle> vehicles2 = vehicleStorage.getAllAvailableVehicles();
-                        for (Vehicle vehicle1 : vehicles2){
-                            System.out.println(vehicle1 + "\n");
+                        System.out.println("Enter the start date (in format yyyy-MM-dd):");
+                        String sd = scan.next();
+                        System.out.println("Enter the end date (in format yyyy-MM-dd):");
+                        String ed = scan.next();
+                        List<Vehicle> vehicles1 = rentalDetailsStorage.getAllAvailableVehicles(sd, ed);
+                        if (vehicles1.size() > 0) {
+                            for (Vehicle vehicle : vehicles1) {
+                                System.out.println(vehicle + "\n");
+                            }
+                        } else {
+                            System.out.println("There is no record match your search!");
                         }
                         break;
                     case 5:
@@ -122,7 +146,22 @@ public class Program {
                         vehicleStorage.addVehiclesFromCSV("src\\main\\resources\\data.csv");
                         break;
                     case 8:
-                        vehicleStorage.exportAllVehiclesToCSV();
+                        vehicleStorage.exportAllVehiclesToCSV("src\\main\\resources\\export.csv");
+                        break;
+                    case 9:
+                        System.out.println("Enter your customer number (choose between 1 and 1000): ");
+                        int cN = scan.nextInt();
+                        System.out.println("Enter your name: ");
+                        String name = scan.next();
+                        System.out.println("Enter your name: ");
+                        String address = scan.next();
+                        System.out.println("Enter your name: ");
+                        String contact = scan.next();
+                        if (customerStorage.addCustomer(new Customer(cN, name, address, contact))){
+                            System.out.println("You have been registered successfully");
+                        } else {
+                            System.out.println("This customer has existed already");
+                        }
                         break;
                     case 0:
                         System.out.println("Bye!");

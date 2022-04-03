@@ -1,7 +1,6 @@
 package repositories;
 
 import model.Customer;
-import model.Vehicle;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -13,7 +12,7 @@ public class MySQLCustomerStorage{
     private Connection connection;
     private final String DB_URL = "jdbc:mysql://localhost:3306/vehicledb?createDatabaseIfNotExist=true";
     private final String USERNAME = "root";
-    private final String PASSWORD = "admin";
+    private final String PASSWORD = "1qazxsw2@_123";
 
     public MySQLCustomerStorage() throws SQLException{
         connection = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
@@ -24,7 +23,7 @@ public class MySQLCustomerStorage{
     }
 
     public boolean addCustomer(Customer customer) throws SQLException {
-        if (customer != null) {
+        if (!checkIfCustomerExist(customer.getCustomerNumber())) {
             PreparedStatement ps = connection.prepareStatement("insert into Customers (customerNumber, name, address, contact) values (?,?,?,?)");
             ps.setInt(1, customer.getCustomerNumber());
             ps.setString(2, customer.getName());
@@ -50,5 +49,16 @@ public class MySQLCustomerStorage{
             customers.add(customer);
         }
         return customers;
+    }
+
+    public boolean checkIfCustomerExist(int customerNumber) throws SQLException{
+        boolean bool = false;
+        PreparedStatement preparedStatement = connection.prepareStatement("select customerNumber from Customers where customerNumber = ?");
+        preparedStatement.setInt(1, customerNumber);
+        ResultSet result = preparedStatement.executeQuery();
+        if (result.next()){
+            bool = true;
+        }
+        return bool;
     }
 }

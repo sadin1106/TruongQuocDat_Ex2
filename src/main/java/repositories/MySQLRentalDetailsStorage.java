@@ -2,6 +2,7 @@ package repositories;
 
 import model.Customer;
 import model.RentalDetail;
+import model.Vehicle;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -13,21 +14,20 @@ public class MySQLRentalDetailsStorage{
     private Connection connection;
     private final String DB_URL = "jdbc:mysql://localhost:3306/vehicledb?createDatabaseIfNotExist=true";
     private final String USERNAME = "root";
-    private final String PASSWORD = "admin";
+    private final String PASSWORD = "1qazxsw2@_123";
 
     public MySQLRentalDetailsStorage() throws SQLException{
         connection = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
         Statement statement = connection.createStatement();
         if (!tableExist(connection, "RentalDetails")){
-            statement.execute("create table RentalDetails (startDate TEXT, endDate TEXT, brand TEXT, model TEXT, customerNumber TEXT, customerName TEXT)");
+            statement.execute("create table RentalDetails (startDate DATE , endDate DATE , brand TEXT, model TEXT, customerNumber TEXT, customerName TEXT)");
         }
     }
 
     public List<RentalDetail> getCustomerRentals(Customer customer) throws SQLException {
-        PreparedStatement ps = connection.prepareStatement("select * from RentalDetails where clientNumber = ?");
+        PreparedStatement ps = connection.prepareStatement("select * from RentalDetails where customerNumber = ?");
         ps.setInt(1, customer.getCustomerNumber());
         ResultSet rs = ps.executeQuery();
-
         List<RentalDetail> rentedCars = new ArrayList<>();
         while (rs.next()) {
             RentalDetail rent = new RentalDetail();
@@ -88,5 +88,24 @@ public class MySQLRentalDetailsStorage{
             preparedStatement.executeUpdate();
             return true;
         }
+    }
+
+    public List<Vehicle> getAllAvailableVehicles(String startDate, String endDate) throws SQLException {
+        PreparedStatement ps = connection.prepareStatement("select * from Vehicles left join RentalDetails on Vehicles.brand = RentalDetails.brand where (startDate > ? or endDate < ?) or status ='available'");
+        ps.setString(1, startDate);
+        ps.setString(2, endDate);
+        ResultSet rs = ps.executeQuery();
+        List<Vehicle> vehicles = new ArrayList<>();
+        while (rs.next()){
+            Vehicle vehicle = new Vehicle();
+            vehicle.setCode(rs.getLong("code"));
+            vehicle.setBrand(rs.getString("brand"));
+            vehicle.setModel(rs.getString("model"));
+            vehicle.setSeats(rs.getInt("seats"));
+            vehicle.setLicensePlate(rs.getString("licensePlate"));
+            vehicle.setStatus(rs.getString("status"));
+            vehicles.add(vehicle);
+        }
+        return vehicles;
     }
 }

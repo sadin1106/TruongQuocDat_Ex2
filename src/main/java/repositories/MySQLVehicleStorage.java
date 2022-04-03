@@ -19,7 +19,7 @@ public class MySQLVehicleStorage{
     private Connection connection;
     private final String DB_URL = "jdbc:mysql://localhost:3306/vehicledb?createDatabaseIfNotExist=true";
     private final String USERNAME = "root";
-    private final String PASSWORD = "admin";
+    private final String PASSWORD = "1qazxsw2@_123";
 
     public MySQLVehicleStorage() throws SQLException{
         connection = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
@@ -48,7 +48,7 @@ public class MySQLVehicleStorage{
     public List<Vehicle> getAllVehicles() throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM Vehicles");
         ResultSet result = preparedStatement.executeQuery();
-        List<Vehicle> vehicles = new ArrayList<Vehicle>();
+        List<Vehicle> vehicles = new ArrayList<>();
         while (result.next()) {
             Vehicle vehicle = new Vehicle();
             vehicle.setCode(result.getLong("code"));
@@ -63,7 +63,7 @@ public class MySQLVehicleStorage{
     }
 
     public boolean deleteAVehicle(Vehicle vehicle) throws SQLException {
-        if (vehicle == null){
+        if (doesVehicleExist(vehicle)){
             return false;
         }else {
             PreparedStatement preparedStatement = connection.prepareStatement("delete from Vehicles where code=?");
@@ -73,25 +73,25 @@ public class MySQLVehicleStorage{
         }
     }
 
-    public List<Vehicle> getAllAvailableVehicles() throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * from Vehicles where status='available'");
-        ResultSet result = preparedStatement.executeQuery();
-        List<Vehicle> vehicles = new ArrayList<Vehicle>();
-        while (result.next()) {
-            Vehicle vehicle = new Vehicle();
-            vehicle.setCode(result.getLong("code"));
-            vehicle.setBrand(result.getString("brand"));
-            vehicle.setModel(result.getString("model"));
-            vehicle.setSeats(result.getInt("seats"));
-            vehicle.setLicensePlate(result.getString("licensePlate"));
-            vehicle.setStatus(result.getString("status"));
-            vehicles.add(vehicle);
-        }
-        return vehicles;
-    }
+//    public List<Vehicle> getAllAvailableVehicles() throws SQLException {
+//        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * from Vehicles where status='available'");
+//        ResultSet result = preparedStatement.executeQuery();
+//        List<Vehicle> vehicles = new ArrayList<>();
+//        while (result.next()) {
+//            Vehicle vehicle = new Vehicle();
+//            vehicle.setCode(result.getLong("code"));
+//            vehicle.setBrand(result.getString("brand"));
+//            vehicle.setModel(result.getString("model"));
+//            vehicle.setSeats(result.getInt("seats"));
+//            vehicle.setLicensePlate(result.getString("licensePlate"));
+//            vehicle.setStatus(result.getString("status"));
+//            vehicles.add(vehicle);
+//        }
+//        return vehicles;
+//    }
 
     public boolean addNewVehicle(Vehicle vehicle) throws SQLException {
-        if (vehicle != null) {
+        if (!doesVehicleExist(vehicle)) {
             PreparedStatement ps = connection.prepareStatement("insert into Vehicles (code, brand, model, seats, licensePlate, status, customerNumber) values (?,?,?,?,?,?,?)");
             ps.setLong(1, vehicle.getCode());
             ps.setString(2, vehicle.getBrand());
@@ -121,12 +121,12 @@ public class MySQLVehicleStorage{
         }
     }
 
-    public void exportAllVehiclesToCSV() throws SQLException{
+    public void exportAllVehiclesToCSV(String path) throws SQLException{
         List<Vehicle> vehicles = getAllVehicles();
         if (vehicles.size() < 1){
             System.out.println("There's nothing to print here!");
         } else {
-            File file = new File("src\\main\\resources\\export.csv");
+            File file = new File(path);
             try {
                 FileWriter fileWriter = new FileWriter(file);
                 CSVWriter writer = new CSVWriter(fileWriter);
@@ -143,5 +143,16 @@ public class MySQLVehicleStorage{
                 e.printStackTrace();
             }
         }
+    }
+
+    public boolean doesVehicleExist(Vehicle vehicle) throws SQLException {
+        int count = 0;
+        PreparedStatement preparedStatement = connection.prepareStatement("SELECT COUNT(0) FROM Vehicles WHERE code = ? ");
+        preparedStatement.setLong(1, vehicle.getCode());
+        ResultSet result = preparedStatement.executeQuery();
+        while (result.next()) {
+            count = result.getInt(1);
+        }
+        return count < 1;
     }
 }
