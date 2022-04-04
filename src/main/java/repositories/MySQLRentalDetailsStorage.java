@@ -8,13 +8,10 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static utilities.Utilities.tableExist;
+import static utilities.Utilities.*;
 
-public class MySQLRentalDetailsStorage{
+public class MySQLRentalDetailsStorage implements RentalDetailsStorage{
     private Connection connection;
-    private final String DB_URL = "jdbc:mysql://localhost:3306/vehicledb?createDatabaseIfNotExist=true";
-    private final String USERNAME = "root";
-    private final String PASSWORD = "1qazxsw2@_123";
 
     public MySQLRentalDetailsStorage() throws SQLException{
         connection = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
@@ -24,6 +21,7 @@ public class MySQLRentalDetailsStorage{
         }
     }
 
+    @Override
     public List<RentalDetail> getCustomerRentals(Customer customer) throws SQLException {
         PreparedStatement ps = connection.prepareStatement("select * from RentalDetails where customerNumber = ?");
         ps.setInt(1, customer.getCustomerNumber());
@@ -42,6 +40,7 @@ public class MySQLRentalDetailsStorage{
         return rentedCars;
     }
 
+    @Override
     public boolean rentCar(RentalDetail rentingACar) throws SQLException {
         int count = 0;
         PreparedStatement preparedStatement = connection.prepareStatement("SELECT COUNT(0) FROM Vehicles WHERE status='available' AND brand=? AND model=?");
@@ -73,6 +72,7 @@ public class MySQLRentalDetailsStorage{
         }
     }
 
+    @Override
     public boolean returnACar(RentalDetail rentalDetail) throws SQLException {
         if (rentalDetail == null) {
             return false;
@@ -90,6 +90,7 @@ public class MySQLRentalDetailsStorage{
         }
     }
 
+    @Override
     public List<Vehicle> getAllAvailableVehicles(String startDate, String endDate) throws SQLException {
         PreparedStatement ps = connection.prepareStatement("select * from Vehicles left join RentalDetails on Vehicles.brand = RentalDetails.brand where (startDate > ? or endDate < ?) or status ='available'");
         ps.setString(1, startDate);

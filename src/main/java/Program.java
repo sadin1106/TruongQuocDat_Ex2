@@ -1,9 +1,7 @@
 import model.Customer;
 import model.RentalDetail;
 import model.Vehicle;
-import repositories.MySQLCustomerStorage;
-import repositories.MySQLRentalDetailsStorage;
-import repositories.MySQLVehicleStorage;
+import repositories.*;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -15,10 +13,10 @@ public class Program {
     }
 
     private static void printMenu() throws SQLException {
-        MySQLCustomerStorage customerStorage = new MySQLCustomerStorage();
+        CustomerStorage customerStorage = new MySQLCustomerStorage();
         Scanner scan = new Scanner(System.in);
-        MySQLVehicleStorage vehicleStorage = new MySQLVehicleStorage();
-        MySQLRentalDetailsStorage rentalDetailsStorage = new MySQLRentalDetailsStorage();
+        VehicleStorage vehicleStorage = new MySQLVehicleStorage();
+        RentalDetailsStorage rentalDetailsStorage = new MySQLRentalDetailsStorage();
         try {
             while (true) {
                 System.out.println("--------------------------------------------------");

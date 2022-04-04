@@ -1,7 +1,6 @@
 package repositories;
 
 import com.opencsv.CSVWriter;
-import model.RentalDetail;
 import model.Vehicle;
 
 import java.io.File;
@@ -13,13 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import static utilities.Utilities.tableExist;
+import static utilities.Utilities.*;
 
-public class MySQLVehicleStorage{
+public class MySQLVehicleStorage implements VehicleStorage{
     private Connection connection;
-    private final String DB_URL = "jdbc:mysql://localhost:3306/vehicledb?createDatabaseIfNotExist=true";
-    private final String USERNAME = "root";
-    private final String PASSWORD = "1qazxsw2@_123";
 
     public MySQLVehicleStorage() throws SQLException{
         connection = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
@@ -29,6 +25,7 @@ public class MySQLVehicleStorage{
         }
     }
 
+    @Override
     public List<Vehicle> getVehiclesInCSV(String path){
         File csv = new File(path);
         List<Vehicle> vehicles = new ArrayList<>();
@@ -45,6 +42,7 @@ public class MySQLVehicleStorage{
         return vehicles;
     }
 
+    @Override
     public List<Vehicle> getAllVehicles() throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM Vehicles");
         ResultSet result = preparedStatement.executeQuery();
@@ -62,6 +60,7 @@ public class MySQLVehicleStorage{
         return vehicles;
     }
 
+    @Override
     public boolean deleteAVehicle(Vehicle vehicle) throws SQLException {
         if (doesVehicleExist(vehicle)){
             return false;
@@ -73,23 +72,7 @@ public class MySQLVehicleStorage{
         }
     }
 
-//    public List<Vehicle> getAllAvailableVehicles() throws SQLException {
-//        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * from Vehicles where status='available'");
-//        ResultSet result = preparedStatement.executeQuery();
-//        List<Vehicle> vehicles = new ArrayList<>();
-//        while (result.next()) {
-//            Vehicle vehicle = new Vehicle();
-//            vehicle.setCode(result.getLong("code"));
-//            vehicle.setBrand(result.getString("brand"));
-//            vehicle.setModel(result.getString("model"));
-//            vehicle.setSeats(result.getInt("seats"));
-//            vehicle.setLicensePlate(result.getString("licensePlate"));
-//            vehicle.setStatus(result.getString("status"));
-//            vehicles.add(vehicle);
-//        }
-//        return vehicles;
-//    }
-
+    @Override
     public boolean addNewVehicle(Vehicle vehicle) throws SQLException {
         if (!doesVehicleExist(vehicle)) {
             PreparedStatement ps = connection.prepareStatement("insert into Vehicles (code, brand, model, seats, licensePlate, status, customerNumber) values (?,?,?,?,?,?,?)");
@@ -107,6 +90,7 @@ public class MySQLVehicleStorage{
         }
     }
 
+    @Override
     public void addVehiclesFromCSV(String path) throws SQLException {
         List<Vehicle> vehicles = getVehiclesInCSV(path);
         for (Vehicle vehicle : vehicles) {
@@ -121,6 +105,7 @@ public class MySQLVehicleStorage{
         }
     }
 
+    @Override
     public void exportAllVehiclesToCSV(String path) throws SQLException{
         List<Vehicle> vehicles = getAllVehicles();
         if (vehicles.size() < 1){
@@ -145,6 +130,7 @@ public class MySQLVehicleStorage{
         }
     }
 
+    @Override
     public boolean doesVehicleExist(Vehicle vehicle) throws SQLException {
         int count = 0;
         PreparedStatement preparedStatement = connection.prepareStatement("SELECT COUNT(0) FROM Vehicles WHERE code = ? ");
